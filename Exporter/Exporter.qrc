@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/Exporter">
+        <file>Resources/image.png</file>
+        <file>Resources/model.png</file>
+    </qresource>
+</RCC>
