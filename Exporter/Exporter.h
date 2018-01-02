@@ -6,6 +6,8 @@
 
 #include "ui_Exporter.h"
 
+#include <FreeImage/FreeImage.h>
+
 class Exporter : public QMainWindow
 {
 	Q_OBJECT
