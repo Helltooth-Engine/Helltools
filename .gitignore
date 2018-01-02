@@ -1,4 +1,4 @@
 .vs
-x64/*
+bin/*
 Exporter/GeneratedFiles/*
-Exporter/x64
+
