@@ -16,14 +16,12 @@
 
 #pragma once
 
-#include "src/Buffer.h"
-#include "src/Writer.h"
-#include "src/Reader.h"
-
-#include "src/Field.h"
-#include "src/Array.h"
-#include "src/Object.h"
-#include "src/Database.h"
-#include "src/Header.h"
-
-#include "src/Internal.h"
+#include "Cereal/Buffer.h"
+#include "Cereal/Writer.h"
+#include "Cereal/Reader.h"
+#include "Cereal/Field.h"
+#include "Cereal/Array.h"
+#include "Cereal/Object.h"
+#include "Cereal/Database.h"
+#include "Cereal/Header.h"
+#include "Cereal/Internal.h"

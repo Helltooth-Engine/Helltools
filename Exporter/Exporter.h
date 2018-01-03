@@ -10,6 +10,9 @@
 #include <Assimp/Importer.hpp>
 #include <Assimp/scene.h>
 #include <Assimp/postprocess.h>
+#include "Cereal.h"
+
+using namespace Cereal;
 
 class Exporter : public QMainWindow
 {
@@ -19,6 +22,7 @@ private:
 	Ui::ExporterClass ui;
 	QPushButton* m_PathButton;
 	QPushButton* m_ExportButton;
+	QPushButton* m_ConvertAll;
 
 	QProgressBar* m_ResourceBar;
 	QProgressBar* m_ResourcesBar;
@@ -32,6 +36,8 @@ private:
 	QIcon* m_ModelIcon;
 
 	QMenu* m_DeleteMenu;
+
+	QString m_ExportPath;
 
 public:
 	Exporter(QWidget *parent = Q_NULLPTR);
@@ -48,4 +54,6 @@ private slots:
 	void DeleteItem();
 
 	void SelectExportLocation();
+
+	void ConvertAll();
 };
