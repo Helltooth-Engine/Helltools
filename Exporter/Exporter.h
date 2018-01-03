@@ -7,6 +7,9 @@
 #include "ui_Exporter.h"
 
 #include <FreeImage/FreeImage.h>
+#include <Assimp/Importer.hpp>
+#include <Assimp/scene.h>
+#include <Assimp/postprocess.h>
 
 class Exporter : public QMainWindow
 {
@@ -33,6 +36,9 @@ private:
 public:
 	Exporter(QWidget *parent = Q_NULLPTR);
 	~Exporter();
+
+	void ProcessModel(QString path);
+	void ProcessTexture(QString path);
 
 private slots:
 	void SelectPathButton();
