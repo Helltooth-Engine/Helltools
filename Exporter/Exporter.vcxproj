@@ -32,14 +32,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\inter\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Dependencies\FreeImage\include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Dependencies\FreeImage\bin\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Dependencies\FreeImage\include\;$(SolutionDir)Dependencies\Assimp\include\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Dependencies\FreeImage\bin\;$(SolutionDir)Dependencies\Assimp\bin\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)bin\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)bin\inter\$(Platform)\$(Configuration)\</IntDir>
-    <IncludePath>$(SolutionDir)Dependencies\FreeImage\include\;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)Dependencies\FreeImage\bin\;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Dependencies\FreeImage\include\;$(SolutionDir)Dependencies\Assimp\include\;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)Dependencies\FreeImage\bin\;$(SolutionDir)Dependencies\Assimp\bin\;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -55,7 +55,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;%(AdditionalDependencies);FreeImage.lib</AdditionalDependencies>
+      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;%(AdditionalDependencies);FreeImage.lib;assimp.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -71,7 +71,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <AdditionalDependencies>qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;%(AdditionalDependencies);FreeImage.lib</AdditionalDependencies>
+      <AdditionalDependencies>qtmain.lib;Qt5Core.lib;Qt5Gui.lib;Qt5Widgets.lib;%(AdditionalDependencies);FreeImage.lib;assimp.lib</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -115,6 +115,16 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Cereal.h" />
+    <ClInclude Include="Cereal\Array.h" />
+    <ClInclude Include="Cereal\Buffer.h" />
+    <ClInclude Include="Cereal\Database.h" />
+    <ClInclude Include="Cereal\Field.h" />
+    <ClInclude Include="Cereal\Header.h" />
+    <ClInclude Include="Cereal\Internal.h" />
+    <ClInclude Include="Cereal\Object.h" />
+    <ClInclude Include="Cereal\Reader.h" />
+    <ClInclude Include="Cereal\Writer.h" />
     <ClInclude Include="GeneratedFiles\ui_Exporter.h" />
   </ItemGroup>
   <ItemGroup>
