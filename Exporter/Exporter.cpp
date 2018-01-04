@@ -159,7 +159,7 @@ void Exporter::ProcessTexture(QString path) {
 
 	Array* array = new Array("pixels", result, size);
 
-	Object* object = new Object("texture");
+	Object* object = new Object("texture2D");
 	object->addField(fWidth);
 	object->addField(fHeight);
 	object->addField(fBpp);
