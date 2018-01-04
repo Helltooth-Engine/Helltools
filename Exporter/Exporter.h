@@ -1,12 +1,12 @@
 #pragma once
-
 #include <QtWidgets/QMainWindow>
 #include <QFileDialog>
 #include <QMouseEvent>
 
 #include "ui_Exporter.h"
-
+#define FREEIMAGE_BIGENDIAN
 #include <FreeImage/FreeImage.h>
+
 #include <Assimp/Importer.hpp>
 #include <Assimp/scene.h>
 #include <Assimp/postprocess.h>
@@ -14,8 +14,7 @@
 
 using namespace Cereal;
 
-class Exporter : public QMainWindow
-{
+class Exporter : public QMainWindow {
 	Q_OBJECT
 
 private:

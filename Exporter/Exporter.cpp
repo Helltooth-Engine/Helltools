@@ -128,8 +128,6 @@ void Exporter::ProcessTexture(QString path) {
 	FIBITMAP* dib;
 	if (FreeImage_FIFSupportsReading(fif)) dib = FreeImage_Load(fif, stdPath.c_str());
 
-	FreeImage_FlipVertical(dib);
-
 	m_ProgressAction->setText("Copying data from image...");
 	m_ResourceBar->setValue(28);
 
