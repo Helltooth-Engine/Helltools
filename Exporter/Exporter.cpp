@@ -125,8 +125,16 @@ void Exporter::ProcessTexture(QString path) {
 	m_ProgressAction->setText("Reading Image...");
 	m_ResourceBar->setValue(14);
 
+	FIBITMAP* loadDib;
+	if (FreeImage_FIFSupportsReading(fif)) loadDib = FreeImage_Load(fif, stdPath.c_str());
+	
 	FIBITMAP* dib;
-	if (FreeImage_FIFSupportsReading(fif)) dib = FreeImage_Load(fif, stdPath.c_str());
+
+	unsigned int testBpp = FreeImage_GetBPP(loadDib);
+	if (testBpp == 24)
+		dib = FreeImage_ConvertTo32Bits(loadDib);
+	else
+		dib = loadDib;
 
 	m_ProgressAction->setText("Copying data from image...");
 	m_ResourceBar->setValue(28);
