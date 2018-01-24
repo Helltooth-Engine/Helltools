@@ -107,12 +107,12 @@ void Exporter::ConvertAll() {
 			ProcessTexture(item->text());
 		}
 		else if (item->data(Qt::UserRole) == 1) {
-
+			ProcessModel(item->text());
 		}
 	}
 }
 
-void Exporter::ProcessTexture(QString path) {
+void Exporter::ProcessTexture(const QString& path) {
 	m_ResourceBar->setValue(0);
 	m_ProgressAction->setText("Setting up for loading...");
 
@@ -199,4 +199,89 @@ void Exporter::ProcessTexture(QString path) {
 	m_ResourceBar->setValue(100);
 	delete[] result;
 	delete database;
+}
+
+void Exporter::ProcessModel(const QString& path) {
+	Assimp::Importer importer;
+
+	const aiScene* scene = importer.ReadFile(path.toStdString(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
+
+	aiMesh* *meshes = scene->mMeshes;
+
+	struct Vertex {
+		float x, y, z;
+		float uvX, uvY;
+		float nX, nY, nZ;
+	};
+
+	std::vector<Vertex> vertices(0);
+	std::vector<unsigned int> indices(0);
+
+	bool hasBones = false;
+
+	for (size_t i = 0; i < scene->mNumMeshes; i++) {
+		if (meshes[i]->HasBones()) {
+			//format not supported, move on
+			continue;
+		}
+		aiMesh* currentMesh = meshes[i];
+
+		vertices.resize(vertices.size() + meshes[i]->mNumVertices);
+		size_t verticesOffset = 0;
+		size_t indicesOffset = 0;
+
+		for (size_t vertexIndex = 0; vertexIndex < currentMesh->mNumVertices; vertexIndex++) {
+			if (currentMesh->HasPositions())
+				memcpy(&vertices[verticesOffset + vertexIndex], &currentMesh->mVertices[vertexIndex], sizeof(float) * 3);
+			
+			if (currentMesh->HasTextureCoords(0))
+				memcpy((char*)&vertices[verticesOffset + vertexIndex] + sizeof(float) * 3, &currentMesh->mTextureCoords[0][vertexIndex], sizeof(float) * 2);
+
+			if (currentMesh->HasNormals())
+				memcpy((char*)&vertices[verticesOffset + vertexIndex] + sizeof(float) * 5, &currentMesh->mNormals[vertexIndex], sizeof(float) * 3);
+		}
+		
+		verticesOffset += currentMesh->mNumVertices;
+
+		for (size_t faceIndex = 0; faceIndex < currentMesh->mNumFaces; faceIndex++) {
+			aiFace face = currentMesh->mFaces[faceIndex];
+			
+			for (int k=0; k < face.mNumIndices; k++)
+				indices.push_back(face.mIndices[k]);
+		}
+
+	}
+
+	Field* fHasBones = new Field("hasBones", hasBones);
+
+	float* verticesData = (float*)&vertices[0];
+	unsigned int* indicesData = &indices[0];
+
+	Array* aVerticesData = new Array("verticesData", verticesData, vertices.size() * sizeof(Vertex) / sizeof(float));
+	Array* aIndicesData = new Array("indicesData", (int*)indicesData, indices.size());
+		
+	Object* object = new Object("model");
+	object->addField(fHasBones);
+	object->addArray(aVerticesData);
+	object->addArray(aIndicesData);
+
+	Database* db = new Database("model");
+	db->addObject(object);
+
+	Buffer buffer = Buffer(db->getSize());
+	db->write(buffer);
+
+	QStringList splitPath = path.split("/");
+	QStringList splitPath2 = splitPath[splitPath.size() - 1].split(".");
+	QString fileName = splitPath2[0];
+
+	fileName += ".htmodel";
+
+	fileName = m_ExportPath + "/" + fileName;
+
+	buffer.writeFile(fileName.toStdString());
+
+	delete db;
+
+	importer.FreeScene();
 }

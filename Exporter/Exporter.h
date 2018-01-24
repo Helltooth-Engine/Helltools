@@ -42,8 +42,8 @@ public:
 	Exporter(QWidget *parent = Q_NULLPTR);
 	~Exporter();
 
-	void ProcessModel(QString path);
-	void ProcessTexture(QString path);
+	void ProcessModel(const QString& path);
+	void ProcessTexture(const QString& path);
 
 private slots:
 	void SelectPathButton();
