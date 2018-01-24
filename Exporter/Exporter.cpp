@@ -203,6 +203,9 @@ void Exporter::ProcessTexture(const QString& path) {
 
 void Exporter::ProcessModel(const QString& path) {
 	Assimp::Importer importer;
+	
+	m_ProgressAction->setText("Importing model...");
+	m_ResourceBar->setValue(10);
 
 	const aiScene* scene = importer.ReadFile(path.toStdString(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices);
 
@@ -219,6 +222,8 @@ void Exporter::ProcessModel(const QString& path) {
 
 	bool hasBones = false;
 
+	m_ProgressAction->setText("Gathering data...");
+	m_ResourceBar->setValue(37);
 	for (size_t i = 0; i < scene->mNumMeshes; i++) {
 		if (meshes[i]->HasBones()) {
 			//format not supported, move on
@@ -252,6 +257,8 @@ void Exporter::ProcessModel(const QString& path) {
 
 	}
 
+	m_ProgressAction->setText("Storing the data...");
+	m_ResourceBar->setValue(71);
 	Field* fHasBones = new Field("hasBones", hasBones);
 
 	float* verticesData = (float*)&vertices[0];
@@ -279,9 +286,13 @@ void Exporter::ProcessModel(const QString& path) {
 
 	fileName = m_ExportPath + "/" + fileName;
 
+	m_ResourceBar->setValue(87);
+	m_ProgressAction->setText("Saving the file...");
 	buffer.writeFile(fileName.toStdString());
 
 	delete db;
 
 	importer.FreeScene();
+	m_ProgressAction->setText("Done!");
+	m_ResourceBar->setValue(100);
 }
