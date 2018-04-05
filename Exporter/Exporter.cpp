@@ -3,6 +3,24 @@
 Exporter::Exporter(QWidget *parent)
 	: QMainWindow(parent) {
 	ui.setupUi(this);
+
+	QString path = QDir::currentPath() + "/exportPath.txt";
+	std::string filePath = path.toUtf8().toStdString();
+
+	std::ifstream f(filePath);
+	if (f.good()) {
+
+		std::string exportPath;
+		std::getline(f, exportPath);
+
+		m_ExportPath = QString(exportPath.c_str());
+
+		f.close();
+	}
+	else {
+		m_ExportPath = QDir::currentPath();
+	}
+
 	m_PathButton = ui.pushButton;
 	m_ConvertAll = ui.convert;
 
@@ -21,9 +39,8 @@ Exporter::Exporter(QWidget *parent)
 	m_ModelIcon = new QIcon("Resources/model.png");
 
 	m_ExportLocation = ui.exportLocation;
-	m_ExportLocation->setText("Export Location: " + QDir::currentPath());
+	m_ExportLocation->setText("Export Location: " + m_ExportPath);
 	m_ExportButton = ui.changeLocation;
-	m_ExportPath = QDir::currentPath();
 
 	m_DeleteMenu = new QMenu("Action");
 	m_DeleteMenu->addAction("Convert single", this, SLOT(ConvertSingle()));
@@ -39,6 +56,14 @@ Exporter::Exporter(QWidget *parent)
 
 Exporter::~Exporter() {
 	delete m_ImageIcon, m_ModelIcon;
+
+	QString path = QDir::currentPath() + "/exportPath.txt";
+	std::string filePath = path.toUtf8().toStdString();
+
+	std::ofstream f(filePath);
+	f << m_ExportPath.toUtf8().toStdString().c_str();
+
+	f.close();
 }
 
 void Exporter::SelectPathButton() {
