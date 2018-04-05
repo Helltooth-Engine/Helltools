@@ -5,12 +5,12 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <QTDIR>C:\Qt\5.9.1\msvc2017_64</QTDIR>
-    <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(PATH)%3b$(SolutionDir)Dependencies\FreeImage\bin\%3b%3b$(SolutionDir)Dependencies\Assimp\bin\</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(PATH)%3b$(SolutionDir)Dependencies\FreeImage\bin\%3b%3b$(SolutionDir)Dependencies\Assimp\bin\</LocalDebuggerEnvironment>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <QTDIR>C:\Qt\5.9.1\msvc2017_64</QTDIR>
-    <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(PATH)%3b$(SolutionDir)Dependencies\FreeImage\bin\%3b%3b$(SolutionDir)Dependencies\Assimp\bin\</LocalDebuggerEnvironment>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
+    <LocalDebuggerEnvironment>PATH=$(QTDIR)\bin%3b$(PATH)%3b$(SolutionDir)Dependencies\FreeImage\bin\%3b%3b$(SolutionDir)Dependencies\Assimp\bin\</LocalDebuggerEnvironment>
   </PropertyGroup>
 </Project>

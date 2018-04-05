@@ -7,9 +7,9 @@
 #define FREEIMAGE_BIGENDIAN
 #include <FreeImage/FreeImage.h>
 
-#include <Assimp/Importer.hpp>
-#include <Assimp/scene.h>
-#include <Assimp/postprocess.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 #include "Cereal.h"
 
 using namespace Cereal;

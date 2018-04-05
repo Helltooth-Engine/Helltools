@@ -224,6 +224,8 @@ void Exporter::ProcessModel(const QString& path) {
 
 	m_ProgressAction->setText("Gathering data...");
 	m_ResourceBar->setValue(37);
+	size_t verticesOffset = 0;
+	size_t indicesOffset = 0;
 	for (size_t i = 0; i < scene->mNumMeshes; i++) {
 		if (meshes[i]->HasBones()) {
 			//format not supported, move on
@@ -232,8 +234,6 @@ void Exporter::ProcessModel(const QString& path) {
 		aiMesh* currentMesh = meshes[i];
 
 		vertices.resize(vertices.size() + meshes[i]->mNumVertices);
-		size_t verticesOffset = 0;
-		size_t indicesOffset = 0;
 
 		for (size_t vertexIndex = 0; vertexIndex < currentMesh->mNumVertices; vertexIndex++) {
 			if (currentMesh->HasPositions())
@@ -247,14 +247,14 @@ void Exporter::ProcessModel(const QString& path) {
 		}
 		
 		verticesOffset += currentMesh->mNumVertices;
+		indices.resize(indices.size() + currentMesh->mNumFaces * 3);
 
 		for (size_t faceIndex = 0; faceIndex < currentMesh->mNumFaces; faceIndex++) {
 			aiFace face = currentMesh->mFaces[faceIndex];
-			
-			for (int k=0; k < face.mNumIndices; k++)
-				indices.push_back(face.mIndices[k]);
-		}
 
+			memcpy((char*)&indices[0] + indicesOffset * sizeof(unsigned int), &face.mIndices[0], sizeof(unsigned int) * face.mNumIndices);
+			indicesOffset += face.mNumIndices;
+		}
 	}
 
 	m_ProgressAction->setText("Storing the data...");
