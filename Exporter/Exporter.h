@@ -37,6 +37,7 @@ private:
 	QMenu* m_DeleteMenu;
 
 	QString m_ExportPath;
+	QString m_ImportPath;
 
 public:
 	Exporter(QWidget *parent = Q_NULLPTR);

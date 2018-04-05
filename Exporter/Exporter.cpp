@@ -21,6 +21,24 @@ Exporter::Exporter(QWidget *parent)
 		m_ExportPath = QDir::currentPath();
 	}
 
+	path = QDir::currentPath() + "/importPath.txt";
+	filePath = path.toUtf8().toStdString();
+
+	f.open(filePath);
+	if (f.good()) {
+
+		std::string importPath;
+		std::getline(f, importPath);
+
+		m_ImportPath = QString(importPath.c_str());
+
+		f.close();
+	}
+	else {
+		m_ImportPath = QDir::currentPath();
+	}
+
+
 	m_PathButton = ui.pushButton;
 	m_ConvertAll = ui.convert;
 
@@ -64,6 +82,14 @@ Exporter::~Exporter() {
 	f << m_ExportPath.toUtf8().toStdString().c_str();
 
 	f.close();
+
+	path = QDir::currentPath() + "/importPath.txt";
+	filePath = path.toUtf8().toStdString();
+
+	f.open(filePath);
+	f << m_ImportPath.toUtf8().toStdString().c_str();
+
+	f.close();
 }
 
 void Exporter::SelectPathButton() {
@@ -71,11 +97,12 @@ void Exporter::SelectPathButton() {
 	dialog.setAcceptMode(QFileDialog::AcceptOpen);
 	dialog.setNameFilter("Image files (*.png *.jpg *.bmp *.tga *.jpeg);;Model files (*.obj)");
 	dialog.setFileMode(QFileDialog::ExistingFiles);
-	dialog.setDirectory(QDir::current());
+	dialog.setDirectory(m_ImportPath);
 
 	if (dialog.exec() == QDialog::Accepted) {
 		QStringList fileNames = dialog.selectedFiles();
 		QString selectedFilter = dialog.selectedNameFilter();
+		m_ImportPath = dialog.directory().absolutePath();
 		if (selectedFilter.split(" ")[0] == "Image") {
 			for (int i = 0; i < fileNames.size(); i++) {
 				QListWidgetItem* item = new QListWidgetItem(*m_ImageIcon, fileNames[i]);
