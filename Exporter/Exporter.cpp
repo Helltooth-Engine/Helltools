@@ -26,6 +26,8 @@ Exporter::Exporter(QWidget *parent)
 	}
 
 	m_PathButton = ui.pushButton;
+	m_FolderButton = ui.selectFolder;
+
 	m_ConvertAll = ui.convert;
 
 	m_ResourceBar = ui.resourceBar;
@@ -54,6 +56,7 @@ Exporter::Exporter(QWidget *parent)
 
 	connect(m_Paths, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(PathsRightClick(QPoint)));
 	connect(m_PathButton, SIGNAL(released()), this, SLOT(SelectPathButton()));
+	connect(m_FolderButton, SIGNAL(released()), this, SLOT(SelectPathFolder()));
 	connect(m_ExportButton, SIGNAL(released()), this, SLOT(SelectExportLocation()));
 	connect(m_ConvertAll, SIGNAL(released()), this, SLOT(ConvertAll()));
 }
@@ -105,6 +108,33 @@ void Exporter::SelectPathButton() {
 		}
 	}
 }
+
+void Exporter::SelectPathFolder() {
+	QFileDialog dialog;
+	dialog.setAcceptMode(QFileDialog::AcceptOpen);
+	dialog.setFileMode(QFileDialog::DirectoryOnly);
+	dialog.setDirectory(m_ImportPath);
+
+	if (dialog.exec() == QDialog::Accepted) {
+		QDirIterator it(dialog.directory().absolutePath(), QStringList() << "*.jpg" << "*.png" << "*.bmp" << "*.tga" << "*.jpeg" << "*.obj", QDir::Files, QDirIterator::Subdirectories);
+		while (it.hasNext()) {
+			QString current = it.next();
+			QStringList stringSplit = current.split(".");
+			if (stringSplit[stringSplit.size() - 1] == "obj") {
+				QListWidgetItem* item = new QListWidgetItem(*m_ModelIcon, current);
+				item->setData(Qt::UserRole, 1);
+				m_Paths->addItem(item);
+			}
+			else {
+				QListWidgetItem* item = new QListWidgetItem(*m_ImageIcon, current);
+				item->setData(Qt::UserRole, 0);
+				m_Paths->addItem(item);
+			}
+		}
+
+	}
+}
+
 
 void Exporter::PathsRightClick(QPoint location) {
 	m_DeleteMenu->exec(m_Paths->mapToGlobal(location));

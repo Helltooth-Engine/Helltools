@@ -2,6 +2,7 @@
 #include <QtWidgets/QMainWindow>
 #include <QFileDialog>
 #include <QMouseEvent>
+#include <QDirIterator>
 
 #include "ui_Exporter.h"
 #define FREEIMAGE_BIGENDIAN
@@ -22,6 +23,7 @@ private:
 	QPushButton* m_PathButton;
 	QPushButton* m_ExportButton;
 	QPushButton* m_ConvertAll;
+	QPushButton* m_FolderButton;
 
 	QProgressBar* m_ResourceBar;
 	QProgressBar* m_ResourcesBar;
@@ -49,6 +51,8 @@ public:
 
 private slots:
 	void SelectPathButton();
+	void SelectPathFolder();
+
 	void PathsRightClick(QPoint location);
 
 	void ConvertSingle();
