@@ -103,7 +103,19 @@ void Exporter::PathsRightClick(QPoint location) {
 }
 
 void Exporter::ConvertSingle() {
-
+	auto items = m_Paths->selectedItems();
+	float m_Step = 100.0f / (float)items.count();
+	float currentProgress = 0;
+	for (QListWidgetItem* item : items) {
+		currentProgress += m_Step;
+		m_ResourcesBar->setValue(currentProgress);
+		if (item->data(Qt::UserRole) == 0) {
+			ProcessTexture(item->text());
+		}
+		else if (item->data(Qt::UserRole) == 1) {
+			ProcessModel(item->text());
+		}
+	}
 }
 
 void Exporter::DeleteItem() {
