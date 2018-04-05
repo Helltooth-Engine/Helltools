@@ -25,6 +25,8 @@ Exporter::Exporter(QWidget *parent)
 		m_OpenSetting = "Image";
 	}
 
+	setAcceptDrops(true);
+
 	m_PathButton = ui.pushButton;
 	m_FolderButton = ui.selectFolder;
 
@@ -73,6 +75,37 @@ Exporter::~Exporter() {
 	f << m_OpenSetting.toUtf8().toStdString().c_str();
 
 	f.close();
+}
+
+void Exporter::dragEnterEvent(QDragEnterEvent* e) {
+	if (e->mimeData()->hasUrls()) {
+		e->acceptProposedAction();
+	}
+}
+
+void Exporter::dropEvent(QDropEvent *e) {
+	QList<QUrl> urls = e->mimeData()->urls();
+	for (const QUrl &url : urls) {
+		QString fileName = url.toLocalFile();
+		QStringList imageExt = QStringList() << "jpg" << "png" << "bmp" << "tga" << "jpeg";
+		QStringList splitFileName = fileName.split(".");
+
+		if (splitFileName[splitFileName.size() - 1] == "obj") {
+			QListWidgetItem* item = new QListWidgetItem(*m_ModelIcon, fileName);
+			item->setData(Qt::UserRole, 1);
+			m_Paths->addItem(item);
+		}
+		else {
+			for (const QString& extensions : imageExt) {
+				if (splitFileName[splitFileName.size() - 1] == extensions) {
+					QListWidgetItem* item = new QListWidgetItem(*m_ImageIcon, fileName);
+					item->setData(Qt::UserRole, 0);
+					m_Paths->addItem(item);
+					break;
+				}
+			}
+		}
+	}
 }
 
 void Exporter::SelectPathButton() {

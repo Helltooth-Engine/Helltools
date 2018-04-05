@@ -3,6 +3,7 @@
 #include <QFileDialog>
 #include <QMouseEvent>
 #include <QDirIterator>
+#include <QMimeData>
 
 #include "ui_Exporter.h"
 #define FREEIMAGE_BIGENDIAN
@@ -48,6 +49,9 @@ public:
 
 	void ProcessModel(const QString& path);
 	void ProcessTexture(const QString& path);
+
+	void dropEvent(QDropEvent* e) override;
+	void dragEnterEvent(QDragEnterEvent* e) override;
 
 private slots:
 	void SelectPathButton();
