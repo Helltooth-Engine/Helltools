@@ -38,6 +38,7 @@ private:
 
 	QString m_ExportPath;
 	QString m_ImportPath;
+	QString m_OpenSetting;
 
 public:
 	Exporter(QWidget *parent = Q_NULLPTR);

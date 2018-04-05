@@ -15,12 +15,14 @@ Exporter::Exporter(QWidget *parent)
 		m_ExportPath = QString(path.c_str());
 		std::getline(f, path);
 		m_ImportPath = QString(path.c_str());
-
+		std::getline(f, path);
+		m_OpenSetting = QString(path.c_str());
 		f.close();
 	}
 	else {
 		m_ExportPath = QDir::currentPath();
 		m_ImportPath = QDir::currentPath();
+		m_OpenSetting = "Image";
 	}
 
 	m_PathButton = ui.pushButton;
@@ -64,7 +66,8 @@ Exporter::~Exporter() {
 
 	std::ofstream f(filePath);
 	f << m_ExportPath.toUtf8().toStdString().c_str() << "\n";
-	f << m_ImportPath.toUtf8().toStdString().c_str();
+	f << m_ImportPath.toUtf8().toStdString().c_str() << "\n";
+	f << m_OpenSetting.toUtf8().toStdString().c_str();
 
 	f.close();
 }
@@ -72,7 +75,11 @@ Exporter::~Exporter() {
 void Exporter::SelectPathButton() {
 	QFileDialog dialog;
 	dialog.setAcceptMode(QFileDialog::AcceptOpen);
-	dialog.setNameFilter("Image files (*.png *.jpg *.bmp *.tga *.jpeg);;Model files (*.obj)");
+	if(m_OpenSetting == "Image")
+		dialog.setNameFilter("Image files (*.png *.jpg *.bmp *.tga *.jpeg);;Model files (*.obj)");
+	else if(m_OpenSetting == "Model")
+		dialog.setNameFilter("Model files (*.obj);;Image files (*.png *.jpg *.bmp *.tga *.jpeg)");
+
 	dialog.setFileMode(QFileDialog::ExistingFiles);
 	dialog.setDirectory(m_ImportPath);
 
@@ -80,7 +87,8 @@ void Exporter::SelectPathButton() {
 		QStringList fileNames = dialog.selectedFiles();
 		QString selectedFilter = dialog.selectedNameFilter();
 		m_ImportPath = dialog.directory().absolutePath();
-		if (selectedFilter.split(" ")[0] == "Image") {
+		m_OpenSetting = selectedFilter.split(" ")[0];
+		if (m_OpenSetting == "Image") {
 			for (int i = 0; i < fileNames.size(); i++) {
 				QListWidgetItem* item = new QListWidgetItem(*m_ImageIcon, fileNames[i]);
 				item->setData(Qt::UserRole, 0);
@@ -88,7 +96,7 @@ void Exporter::SelectPathButton() {
 				
 			}
 		}
-		else if (selectedFilter.split(" ")[0] == "Model") {
+		else if (m_OpenSetting == "Model") {
 			for (int i = 0; i < fileNames.size(); i++) {
 				QListWidgetItem* item = new QListWidgetItem(*m_ModelIcon, fileNames[i]);
 				item->setData(Qt::UserRole, 1);
