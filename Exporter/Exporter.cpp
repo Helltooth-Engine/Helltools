@@ -106,6 +106,7 @@ void Exporter::dropEvent(QDropEvent *e) {
 			}
 		}
 	}
+	m_NewFiles = true;
 }
 
 void Exporter::SelectPathButton() {
@@ -139,6 +140,7 @@ void Exporter::SelectPathButton() {
 				m_Paths->addItem(item);
 			}
 		}
+		m_NewFiles = true;
 	}
 }
 
@@ -164,8 +166,56 @@ void Exporter::SelectPathFolder() {
 				m_Paths->addItem(item);
 			}
 		}
-
+		m_NewFiles = true;
 	}
+}
+
+QString Exporter::CreateFileName(const QString& path, const QString& extension) {
+	if (m_NewFiles) {
+		// Decide on the nameLevel
+		m_NameLevel = 0;
+		bool found = true;
+		QStringList split1;
+		QStringList split2;
+		while (found) {
+			found = false;
+			for (int i = 0; i < m_Paths->count() && !found; i++) {
+				for (int j = i + 1; j < m_Paths->count(); j++) {
+					split1 = m_Paths->item(i)->text().split("/");
+					split2 = m_Paths->item(j)->text().split("/");
+
+					bool result = true;
+
+					for (int k = 1; k <= m_NameLevel + 1; k++)
+						if (split1[split1.size() - (k)] != split2[split2.size() - (k)])
+							result = false;
+
+					if (result) {
+						m_NameLevel++;
+						found = true;
+						break;
+					}
+				}
+			}
+
+		}
+		m_NewFiles = false;
+	}
+	
+	QString folderName = "";
+	
+	QStringList splitPath1 = path.split("/");
+	for (int i = splitPath1.size() - m_NameLevel - 1; i < splitPath1.size() - 1; i++)
+		folderName += "/" + splitPath1[i];
+
+	QStringList splitPath2 = splitPath1[splitPath1.size() - 1].split(".");
+	QString fileName = splitPath2[splitPath2.size() - 2];
+
+	fileName += extension;
+
+	folderName = m_ExportPath + folderName;
+	QDir().mkdir(folderName);
+	return folderName +  "/" + fileName;
 }
 
 
@@ -193,6 +243,7 @@ void Exporter::DeleteItem() {
 	auto items = m_Paths->selectedItems();
 	for (QListWidgetItem* item : items) {
 		delete item;
+		m_NewFiles = true;
 	}
 }
 
@@ -297,13 +348,7 @@ void Exporter::ProcessTexture(const QString& path) {
 
 	//Creating file name & adding extesion
 
-	QStringList splitPath = path.split("/");
-	QStringList splitPath2 = splitPath[splitPath.size() - 1].split(".");
-	QString fileName = splitPath2[0];
-
-	fileName += ".httexture";
-
-	fileName = m_ExportPath + "/" + fileName;
+	QString fileName = CreateFileName(path, ".httexture");
 
 	buffer.writeFile(fileName.toStdString());
 
@@ -390,13 +435,8 @@ void Exporter::ProcessModel(const QString& path) {
 	Buffer buffer = Buffer(db->getSize());
 	db->write(buffer);
 
-	QStringList splitPath = path.split("/");
-	QStringList splitPath2 = splitPath[splitPath.size() - 1].split(".");
-	QString fileName = splitPath2[0];
+	QString fileName = CreateFileName(path, ".htmodel");
 
-	fileName += ".htmodel";
-
-	fileName = m_ExportPath + "/" + fileName;
 
 	m_ResourceBar->setValue(87);
 	m_ProgressAction->setText("Saving the file...");

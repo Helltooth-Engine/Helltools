@@ -43,6 +43,10 @@ private:
 	QString m_ImportPath;
 	QString m_OpenSetting;
 
+	int m_NameLevel = 0;
+
+	bool m_NewFiles = false;
+
 public:
 	Exporter(QWidget *parent = Q_NULLPTR);
 	~Exporter();
@@ -52,6 +56,8 @@ public:
 
 	void dropEvent(QDropEvent* e) override;
 	void dragEnterEvent(QDragEnterEvent* e) override;
+
+	QString CreateFileName(const QString& path, const QString& extension);
 
 private slots:
 	void SelectPathButton();
