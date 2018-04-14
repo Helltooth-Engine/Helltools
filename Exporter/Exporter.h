@@ -23,6 +23,13 @@ enum class Type {
 	TEXTURE_3D,
 };
 
+struct Texture {
+	Type type;
+	QPixmap* map = nullptr;
+
+	~Texture() { if (map) delete map; }
+};
+
 class Exporter : public QMainWindow {
 	Q_OBJECT
 
@@ -40,6 +47,7 @@ private:
 
 	QLabel* m_ProgressAction;
 	QLabel* m_ExportLocation;
+	QLabel* m_Skybox;
 
 	QIcon* m_ImageIcon;
 	QIcon* m_ModelIcon;
@@ -50,7 +58,7 @@ private:
 	QString m_ImportPath;
 	QString m_OpenSetting;
 
-	QList<QPair<QListWidgetItem*, Type>> m_TextureTypes;
+	QList<QPair<QListWidgetItem*, Texture>> m_TextureTypes;
 
 	QListWidgetItem* m_CurrentSelected = nullptr;
 

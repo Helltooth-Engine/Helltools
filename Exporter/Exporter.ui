@@ -170,6 +170,9 @@
     <layout class="QGridLayout" name="gridLayout_2">
      <item row="0" column="0">
       <widget class="QLabel" name="dummy5">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="font">
         <font>
          <pointsize>12</pointsize>
@@ -354,6 +357,19 @@
     </property>
     <property name="text">
      <string>Select folder...</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="skybox">
+    <property name="geometry">
+     <rect>
+      <x>950</x>
+      <y>270</y>
+      <width>321</width>
+      <height>271</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>

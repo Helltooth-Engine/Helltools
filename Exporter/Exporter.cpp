@@ -27,6 +27,11 @@ Exporter::Exporter(QWidget *parent)
 
 	setAcceptDrops(true);
 
+	m_Skybox = ui.skybox;
+	m_Skybox->setVisible(false);
+	m_Skybox->setScaledContents(true);
+	m_Skybox->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+	
 	m_PathButton = ui.pushButton;
 	m_FolderButton = ui.selectFolder;
 
@@ -458,14 +463,20 @@ void Exporter::OnListClick(QListWidgetItem* item) {
 		bool found = false;
 		for (size_t i = 0; i < m_TextureTypes.size(); i++) {
 			if (m_TextureTypes[i].first == item) {
-				ui.texture2D->setChecked(m_TextureTypes[i].second == Type::TEXTURE_2D);
-				ui.texture3D->setChecked(m_TextureTypes[i].second == Type::TEXTURE_3D);
+				ui.texture2D->setChecked(m_TextureTypes[i].second.type == Type::TEXTURE_2D);
+				ui.texture3D->setChecked(m_TextureTypes[i].second.type == Type::TEXTURE_3D);
+				if (m_TextureTypes[i].second.type == Type::TEXTURE_3D) {
+					if (m_TextureTypes[i].second.map == nullptr)
+						m_TextureTypes[i].second.map = new QPixmap(item->text());
+					m_Skybox->setVisible(true);
+					m_Skybox->setPixmap(*m_TextureTypes[i].second.map);
+				}
 				found = true;
 				break;
 			}
 		}
 		if (!found) {
-			m_TextureTypes.push_back({ item, Type::TEXTURE_2D });
+			m_TextureTypes.push_back({ item, {Type::TEXTURE_2D, nullptr } } );
 			ui.texture2D->setChecked(true);
 		}
 	}
@@ -479,7 +490,16 @@ void Exporter::TextureTypeToggled(bool checked) {
 	if (m_CurrentSelected) {
 		for (size_t i = 0; i < m_TextureTypes.size(); i++) {
 			if (m_TextureTypes[i].first == m_CurrentSelected) {
-				m_TextureTypes[i].second = checked ? Type::TEXTURE_2D : Type::TEXTURE_3D;
+				m_TextureTypes[i].second.type = checked ? Type::TEXTURE_2D : Type::TEXTURE_3D;
+				if (m_TextureTypes[i].second.type == Type::TEXTURE_3D) {
+					if (m_TextureTypes[i].second.map == nullptr)
+						m_TextureTypes[i].second.map = new QPixmap(m_CurrentSelected->text());
+					m_Skybox->setVisible(true);
+					m_Skybox->setPixmap(*m_TextureTypes[i].second.map);
+				}
+				else {
+					m_Skybox->setVisible(false);
+				}
 				break;
 			}
 		}
