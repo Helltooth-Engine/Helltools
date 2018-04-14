@@ -32,6 +32,46 @@ Exporter::Exporter(QWidget *parent)
 	m_Skybox->setScaledContents(true);
 	m_Skybox->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 	
+	m_Faces.push_back(ui.left);
+	m_Faces.push_back(ui.right);
+	m_Faces.push_back(ui.front);
+	m_Faces.push_back(ui.back);
+	m_Faces.push_back(ui.top);
+	m_Faces.push_back(ui.bottom);
+
+	ui.left   ->setText("L");
+	ui.right  ->setText("R");
+	ui.front  ->setText("F");
+	ui.back   ->setText("B");
+	ui.top    ->setText("T");
+	ui.bottom ->setText("Bt");
+	
+	QFont font = ui.left->font();
+	font.setPointSize(20);
+	font.setBold(true);
+
+	m_FaceWidth = m_Skybox->width() / 4;
+	m_FaceHeight = m_Skybox->height() / 3;
+	
+	ui.top    ->setGeometry(QRect(m_Skybox->x() + 1 * m_FaceWidth, m_Skybox->y() + 0 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
+	ui.bottom ->setGeometry(QRect(m_Skybox->x() + 1 * m_FaceWidth, m_Skybox->y() + 2 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
+	ui.back   ->setGeometry(QRect(m_Skybox->x() + 0 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
+	ui.left   ->setGeometry(QRect(m_Skybox->x() + 1 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
+	ui.front  ->setGeometry(QRect(m_Skybox->x() + 2 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
+	ui.right  ->setGeometry(QRect(m_Skybox->x() + 3 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
+	
+	for (QLabel* face : m_Faces) {
+		face->setFont(font);
+		face->setAlignment(Qt::AlignCenter);
+		face->setFixedWidth(m_FaceWidth);
+		face->setFixedHeight(m_FaceHeight);
+		//face->setVisible(false);
+		face->setScaledContents(true);
+		face->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
+		face->setStyleSheet("border-image: url(Resources/select.png);");
+	}
+	
+
 	m_PathButton = ui.pushButton;
 	m_FolderButton = ui.selectFolder;
 
@@ -465,12 +505,6 @@ void Exporter::OnListClick(QListWidgetItem* item) {
 			if (m_TextureTypes[i].first == item) {
 				ui.texture2D->setChecked(m_TextureTypes[i].second.type == Type::TEXTURE_2D);
 				ui.texture3D->setChecked(m_TextureTypes[i].second.type == Type::TEXTURE_3D);
-				if (m_TextureTypes[i].second.type == Type::TEXTURE_3D) {
-					if (m_TextureTypes[i].second.map == nullptr)
-						m_TextureTypes[i].second.map = new QPixmap(item->text());
-					m_Skybox->setVisible(true);
-					m_Skybox->setPixmap(*m_TextureTypes[i].second.map);
-				}
 				found = true;
 				break;
 			}
@@ -496,8 +530,13 @@ void Exporter::TextureTypeToggled(bool checked) {
 						m_TextureTypes[i].second.map = new QPixmap(m_CurrentSelected->text());
 					m_Skybox->setVisible(true);
 					m_Skybox->setPixmap(*m_TextureTypes[i].second.map);
+					for (QLabel* face : m_Faces) {
+						face->setVisible(true);
+					}
 				}
 				else {
+					for (QLabel* face : m_Faces)
+						face->setVisible(false);
 					m_Skybox->setVisible(false);
 				}
 				break;

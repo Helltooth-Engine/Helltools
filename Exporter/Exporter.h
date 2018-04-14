@@ -49,6 +49,8 @@ private:
 	QLabel* m_ExportLocation;
 	QLabel* m_Skybox;
 
+	QList<QLabel*> m_Faces;
+
 	QIcon* m_ImageIcon;
 	QIcon* m_ModelIcon;
 
@@ -63,6 +65,8 @@ private:
 	QListWidgetItem* m_CurrentSelected = nullptr;
 
 	int m_NameLevel = 0;
+
+	int m_FaceWidth, m_FaceHeight;
 
 	bool m_NewFiles = false;
 
