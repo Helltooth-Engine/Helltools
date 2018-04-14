@@ -4,6 +4,8 @@
 #include <QMouseEvent>
 #include <QDirIterator>
 #include <QMimeData>
+#include <QPair>
+#include <QList>
 
 #include "ui_Exporter.h"
 #define FREEIMAGE_BIGENDIAN
@@ -15,6 +17,11 @@
 #include "Cereal.h"
 
 using namespace Cereal;
+
+enum class Type {
+	TEXTURE_2D,
+	TEXTURE_3D,
+};
 
 class Exporter : public QMainWindow {
 	Q_OBJECT
@@ -43,6 +50,10 @@ private:
 	QString m_ImportPath;
 	QString m_OpenSetting;
 
+	QList<QPair<QListWidgetItem*, Type>> m_TextureTypes;
+
+	QListWidgetItem* m_CurrentSelected = nullptr;
+
 	int m_NameLevel = 0;
 
 	bool m_NewFiles = false;
@@ -52,7 +63,7 @@ public:
 	~Exporter();
 
 	void ProcessModel(const QString& path);
-	void ProcessTexture(const QString& path);
+	void Process2DTexture(const QString& path);
 
 	void dropEvent(QDropEvent* e) override;
 	void dragEnterEvent(QDragEnterEvent* e) override;
@@ -71,4 +82,8 @@ private slots:
 	void SelectExportLocation();
 
 	void ConvertAll();
+	
+	void OnListClick(QListWidgetItem* item);
+
+	void TextureTypeToggled(bool checked);
 };

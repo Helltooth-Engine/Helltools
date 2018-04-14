@@ -61,6 +61,8 @@ Exporter::Exporter(QWidget *parent)
 	connect(m_FolderButton, SIGNAL(released()), this, SLOT(SelectPathFolder()));
 	connect(m_ExportButton, SIGNAL(released()), this, SLOT(SelectExportLocation()));
 	connect(m_ConvertAll, SIGNAL(released()), this, SLOT(ConvertAll()));
+	connect(m_Paths, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(OnListClick(QListWidgetItem*)));
+	connect(ui.texture2D, SIGNAL(toggled(bool)), this, SLOT(TextureTypeToggled(bool)));
 }
 
 Exporter::~Exporter() {
@@ -231,7 +233,7 @@ void Exporter::ConvertSingle() {
 		currentProgress += m_Step;
 		m_ResourcesBar->setValue(currentProgress);
 		if (item->data(Qt::UserRole) == 0) {
-			ProcessTexture(item->text());
+			Process2DTexture(item->text());
 		}
 		else if (item->data(Qt::UserRole) == 1) {
 			ProcessModel(item->text());
@@ -267,7 +269,7 @@ void Exporter::ConvertAll() {
 		m_ResourcesBar->setValue(currentProgress);
 		QListWidgetItem* item = m_Paths->item(i);
 		if (item->data(Qt::UserRole) == 0) {
-			ProcessTexture(item->text());
+			Process2DTexture(item->text());
 		}
 		else if (item->data(Qt::UserRole) == 1) {
 			ProcessModel(item->text());
@@ -275,7 +277,7 @@ void Exporter::ConvertAll() {
 	}
 }
 
-void Exporter::ProcessTexture(const QString& path) {
+void Exporter::Process2DTexture(const QString& path) {
 	m_ResourceBar->setValue(0);
 	m_ProgressAction->setText("Setting up for loading...");
 
@@ -447,4 +449,39 @@ void Exporter::ProcessModel(const QString& path) {
 	importer.FreeScene();
 	m_ProgressAction->setText("Done!");
 	m_ResourceBar->setValue(100);
+}
+
+void Exporter::OnListClick(QListWidgetItem* item) {
+	m_CurrentSelected = item;
+	if (item->data(Qt::UserRole) == 0) {
+		ui.textureFormat->setEnabled(true);
+		bool found = false;
+		for (size_t i = 0; i < m_TextureTypes.size(); i++) {
+			if (m_TextureTypes[i].first == item) {
+				ui.texture2D->setChecked(m_TextureTypes[i].second == Type::TEXTURE_2D);
+				ui.texture3D->setChecked(m_TextureTypes[i].second == Type::TEXTURE_3D);
+				found = true;
+				break;
+			}
+		}
+		if (!found) {
+			m_TextureTypes.push_back({ item, Type::TEXTURE_2D });
+			ui.texture2D->setChecked(true);
+		}
+	}
+	else {
+		ui.textureFormat->setEnabled(false);
+	}
+}
+
+
+void Exporter::TextureTypeToggled(bool checked) {
+	if (m_CurrentSelected) {
+		for (size_t i = 0; i < m_TextureTypes.size(); i++) {
+			if (m_TextureTypes[i].first == m_CurrentSelected) {
+				m_TextureTypes[i].second = checked ? Type::TEXTURE_2D : Type::TEXTURE_3D;
+				break;
+			}
+		}
+	}
 }
