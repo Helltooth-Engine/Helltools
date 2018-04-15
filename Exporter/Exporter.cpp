@@ -67,11 +67,10 @@ Exporter::Exporter(QWidget *parent)
 		face->setAlignment(Qt::AlignCenter);
 		face->setFixedWidth(m_FaceWidth);
 		face->setFixedHeight(m_FaceHeight);
-		//face->setVisible(false);
+		face->setVisible(false);
 		face->setScaledContents(true);
 		face->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 		face->setStyleSheet("border-image: url(Resources/select.png);");
-		//face->setFont(font);
 	}
 
 	m_PathButton = ui.pushButton;
@@ -502,6 +501,7 @@ void Exporter::ProcessModel(const QString& path) {
 }
 
 void Exporter::OnListClick(QListWidgetItem* item) {
+	m_LastSelected = m_CurrentSelected;
 	m_CurrentSelected = item;
 	if (item->data(Qt::UserRole) == 0) {
 		ui.textureFormat->setEnabled(true);
@@ -510,6 +510,8 @@ void Exporter::OnListClick(QListWidgetItem* item) {
 			if (m_TextureTypes[i].first == item) {
 				ui.texture2D->setChecked(m_TextureTypes[i].second.type == Type::TEXTURE_2D);
 				ui.texture3D->setChecked(m_TextureTypes[i].second.type == Type::TEXTURE_3D);
+				if(m_TextureTypes[i].second.type == Type::TEXTURE_3D)
+					UpdateSkyboxTextures();
 				found = true;
 				break;
 			}
@@ -530,21 +532,63 @@ void Exporter::TextureTypeToggled(bool checked) {
 		for (size_t i = 0; i < m_TextureTypes.size(); i++) {
 			if (m_TextureTypes[i].first == m_CurrentSelected) {
 				m_TextureTypes[i].second.type = checked ? Type::TEXTURE_2D : Type::TEXTURE_3D;
+			}
+		}
+	}
+	UpdateSkyboxTextures();
+}
+
+void Exporter::UpdateSkyboxTextures() {
+	if (m_LastSelected) {
+		for (size_t i = 0; i < m_TextureTypes.size(); i++) {
+			if (m_TextureTypes[i].first == m_LastSelected) {
+				if (m_TextureTypes[i].second.type == Type::TEXTURE_3D) {
+					Texture& tex = m_TextureTypes[i].second;
+					for (size_t i = 0; i < m_Faces.size(); i++) {
+						tex.skyboxLocations[i].second = m_Faces[i]->GetLayoutLocation();
+					}
+				}
+			}
+		}
+	}
+	if (m_CurrentSelected) {
+		for (size_t i = 0; i < m_TextureTypes.size(); i++) {
+			if (m_TextureTypes[i].first == m_CurrentSelected) {
 				if (m_TextureTypes[i].second.type == Type::TEXTURE_3D) {
 					if (m_TextureTypes[i].second.map == nullptr)
 						m_TextureTypes[i].second.map = new QPixmap(m_CurrentSelected->text());
 					m_Skybox->setVisible(true);
 					m_Skybox->setPixmap(*m_TextureTypes[i].second.map);
-					for (QLabel* face : m_Faces) {
-						face->setVisible(true);
+					Texture& tex = m_TextureTypes[i].second;
+					/*
+					ui.left   ->setGeometry(QRect(m_Skybox->x() + 1 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
+					ui.right  ->setGeometry(QRect(m_Skybox->x() + 3 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
+					ui.front  ->setGeometry(QRect(m_Skybox->x() + 2 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
+					ui.back   ->setGeometry(QRect(m_Skybox->x() + 0 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
+					ui.top    ->setGeometry(QRect(m_Skybox->x() + 1 * m_FaceWidth, m_Skybox->y() + 0 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
+					ui.bottom ->setGeometry(QRect(m_Skybox->x() + 1 * m_FaceWidth, m_Skybox->y() + 2 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
+
+					*/
+					if (tex.skyboxLocations.size() == 0) {
+						tex.skyboxLocations.push_back({ Face::LEFT,    QPoint(1, 1) });
+						tex.skyboxLocations.push_back({ Face::RIGHT,   QPoint(3, 1) });
+						tex.skyboxLocations.push_back({ Face::FRONT,   QPoint(2, 1) });
+						tex.skyboxLocations.push_back({ Face::BACK,    QPoint(0, 1) });
+						tex.skyboxLocations.push_back({ Face::TOP,     QPoint(1, 0) });
+						tex.skyboxLocations.push_back({ Face::BOTTOM,  QPoint(1, 2) });
+					}
+					for (size_t i = 0; i < m_Faces.size(); i++) {
+						m_Faces[i]->SetLayoutLocation(tex.skyboxLocations[i].second);
+						m_Faces[i]->setVisible(true);
 					}
 				}
 				else {
-					for (QLabel* face : m_Faces)
-						face->setVisible(false);
+					Texture& tex = m_TextureTypes[i].second;
+					for (size_t i = 0; i < m_Faces.size(); i++) {
+						m_Faces[i]->setVisible(false);
+					}
 					m_Skybox->setVisible(false);
 				}
-				break;
 			}
 		}
 	}

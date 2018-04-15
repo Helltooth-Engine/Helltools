@@ -29,6 +29,8 @@ struct Texture {
 	Type type;
 	QPixmap* map = nullptr;
 
+	QList<QPair<Face, QPoint>> skyboxLocations;
+
 	~Texture() { if (map) delete map; }
 };
 
@@ -65,6 +67,7 @@ private:
 	QList<QPair<QListWidgetItem*, Texture>> m_TextureTypes;
 
 	QListWidgetItem* m_CurrentSelected = nullptr;
+	QListWidgetItem* m_LastSelected = nullptr;
 
 	int m_NameLevel = 0;
 
@@ -83,6 +86,8 @@ public:
 	void dragEnterEvent(QDragEnterEvent* e) override;
 
 	QString CreateFileName(const QString& path, const QString& extension);
+
+	void UpdateSkyboxTextures();
 
 private slots:
 	void SelectPathButton();
