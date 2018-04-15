@@ -45,6 +45,15 @@
     <ClCompile Include="GeneratedFiles\qrc_Exporter.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="SkyboxFace.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_SkyboxFace.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_SkyboxFace.cpp">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Exporter.h">
@@ -55,6 +64,9 @@
     </CustomBuild>
     <CustomBuild Include="Exporter.qrc">
       <Filter>Resource Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="SkyboxFace.h">
+      <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

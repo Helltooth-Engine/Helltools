@@ -32,19 +32,19 @@ Exporter::Exporter(QWidget *parent)
 	m_Skybox->setScaledContents(true);
 	m_Skybox->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 	
-	m_Faces.push_back(ui.left);
-	m_Faces.push_back(ui.right);
-	m_Faces.push_back(ui.front);
-	m_Faces.push_back(ui.back);
-	m_Faces.push_back(ui.top);
-	m_Faces.push_back(ui.bottom);
+	m_Faces.push_back(new SkyboxFace(ui.left));
+	m_Faces.push_back(new SkyboxFace(ui.right));
+	m_Faces.push_back(new SkyboxFace(ui.front));
+	m_Faces.push_back(new SkyboxFace(ui.back));
+	m_Faces.push_back(new SkyboxFace(ui.top));
+	m_Faces.push_back(new SkyboxFace(ui.bottom));
 
-	ui.left   ->setText("L");
-	ui.right  ->setText("R");
-	ui.front  ->setText("F");
-	ui.back   ->setText("B");
-	ui.top    ->setText("T");
-	ui.bottom ->setText("Bt");
+	m_Faces[0]->setText("L");
+	m_Faces[1]->setText("R");
+	m_Faces[2]->setText("F");
+	m_Faces[3]->setText("B");
+	m_Faces[4]->setText("T");
+	m_Faces[5]->setText("Bt");
 	
 	QFont font = ui.left->font();
 	font.setPointSize(20);
@@ -53,14 +53,14 @@ Exporter::Exporter(QWidget *parent)
 	m_FaceWidth = m_Skybox->width() / 4;
 	m_FaceHeight = m_Skybox->height() / 3;
 	
+	ui.left   ->setGeometry(QRect(m_Skybox->x() + 1 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
+	ui.right  ->setGeometry(QRect(m_Skybox->x() + 3 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
+	ui.front  ->setGeometry(QRect(m_Skybox->x() + 2 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
+	ui.back   ->setGeometry(QRect(m_Skybox->x() + 0 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
 	ui.top    ->setGeometry(QRect(m_Skybox->x() + 1 * m_FaceWidth, m_Skybox->y() + 0 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
 	ui.bottom ->setGeometry(QRect(m_Skybox->x() + 1 * m_FaceWidth, m_Skybox->y() + 2 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
-	ui.back   ->setGeometry(QRect(m_Skybox->x() + 0 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
-	ui.left   ->setGeometry(QRect(m_Skybox->x() + 1 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
-	ui.front  ->setGeometry(QRect(m_Skybox->x() + 2 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
-	ui.right  ->setGeometry(QRect(m_Skybox->x() + 3 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
 	
-	for (QLabel* face : m_Faces) {
+	for (SkyboxFace* face : m_Faces) {
 		face->setFont(font);
 		face->setAlignment(Qt::AlignCenter);
 		face->setFixedWidth(m_FaceWidth);
@@ -69,8 +69,8 @@ Exporter::Exporter(QWidget *parent)
 		face->setScaledContents(true);
 		face->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 		face->setStyleSheet("border-image: url(Resources/select.png);");
+		//face->setFont(font);
 	}
-	
 
 	m_PathButton = ui.pushButton;
 	m_FolderButton = ui.selectFolder;
@@ -101,17 +101,20 @@ Exporter::Exporter(QWidget *parent)
 
 	m_Paths->setContextMenuPolicy(Qt::CustomContextMenu);
 
-	connect(m_Paths, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(PathsRightClick(QPoint)));
-	connect(m_PathButton, SIGNAL(released()), this, SLOT(SelectPathButton()));
-	connect(m_FolderButton, SIGNAL(released()), this, SLOT(SelectPathFolder()));
-	connect(m_ExportButton, SIGNAL(released()), this, SLOT(SelectExportLocation()));
-	connect(m_ConvertAll, SIGNAL(released()), this, SLOT(ConvertAll()));
-	connect(m_Paths, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(OnListClick(QListWidgetItem*)));
-	connect(ui.texture2D, SIGNAL(toggled(bool)), this, SLOT(TextureTypeToggled(bool)));
+	connect(m_Paths,        SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(PathsRightClick(QPoint)));
+	connect(m_PathButton,   SIGNAL(released()),                         this, SLOT(SelectPathButton()));
+	connect(m_FolderButton, SIGNAL(released()),                         this, SLOT(SelectPathFolder()));
+	connect(m_ExportButton, SIGNAL(released()),                         this, SLOT(SelectExportLocation()));
+	connect(m_ConvertAll,   SIGNAL(released()),                         this, SLOT(ConvertAll()));
+	connect(m_Paths,        SIGNAL(itemClicked(QListWidgetItem*)),      this, SLOT(OnListClick(QListWidgetItem*)));
+	connect(ui.texture2D,   SIGNAL(toggled(bool)),                      this, SLOT(TextureTypeToggled(bool)));
 }
 
 Exporter::~Exporter() {
 	delete m_ImageIcon, m_ModelIcon;
+
+	for (SkyboxFace* face : m_Faces)
+		delete face;
 
 	QString path = QDir::currentPath() + "/settings.txt";
 	std::string filePath = path.toUtf8().toStdString();

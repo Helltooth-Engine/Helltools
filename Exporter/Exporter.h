@@ -16,6 +16,8 @@
 #include <assimp/postprocess.h>
 #include "Cereal.h"
 
+#include "SkyboxFace.h"
+
 using namespace Cereal;
 
 enum class Type {
@@ -49,7 +51,7 @@ private:
 	QLabel* m_ExportLocation;
 	QLabel* m_Skybox;
 
-	QList<QLabel*> m_Faces;
+	QList<SkyboxFace*> m_Faces;
 
 	QIcon* m_ImageIcon;
 	QIcon* m_ModelIcon;
