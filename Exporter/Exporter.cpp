@@ -32,6 +32,8 @@ Exporter::Exporter(QWidget *parent)
 	m_Skybox->setScaledContents(true);
 	m_Skybox->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
 	
+	SkyboxFace::s_SkyboxTexture = m_Skybox;
+
 	m_Faces.push_back(new SkyboxFace(ui.left));
 	m_Faces.push_back(new SkyboxFace(ui.right));
 	m_Faces.push_back(new SkyboxFace(ui.front));
