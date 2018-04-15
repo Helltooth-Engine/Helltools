@@ -3,6 +3,15 @@
 #include <QLabel>
 #include <QMouseEvent>
 
+enum class Face {
+	TOP,
+	BOTTOM,
+	LEFT,
+	RIGHT,
+	FRONT,
+	BACK
+};
+
 class SkyboxFace : public QLabel {
 	Q_OBJECT
 public:
@@ -14,6 +23,9 @@ public:
 	void mouseMoveEvent(QMouseEvent* e) override;
 	void mousePressEvent(QMouseEvent* e) override;
 
+	Face GetFace();
+	QPoint GetLayoutLocation();
+	void SetLayoutLocation(const QPoint& point);
 private:
 	QLabel* asLabel() { return static_cast<QLabel*>(parent()); }
 };
