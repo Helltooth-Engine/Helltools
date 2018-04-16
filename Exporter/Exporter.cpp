@@ -282,7 +282,16 @@ void Exporter::ConvertSingle() {
 		currentProgress += m_Step;
 		m_ResourcesBar->setValue(currentProgress);
 		if (item->data(Qt::UserRole) == 0) {
-			Process2DTexture(item->text());
+			for (auto textures : m_TextureTypes) {
+				if (textures.first == item) {
+					if(textures.second.type == Type::TEXTURE_2D)
+						Process2DTexture(item->text());
+					else 
+						Process3DTexture(item->text(), textures.second);
+					break;
+				}
+
+			}
 		}
 		else if (item->data(Qt::UserRole) == 1) {
 			ProcessModel(item->text());
@@ -318,7 +327,16 @@ void Exporter::ConvertAll() {
 		m_ResourcesBar->setValue(currentProgress);
 		QListWidgetItem* item = m_Paths->item(i);
 		if (item->data(Qt::UserRole) == 0) {
-			Process2DTexture(item->text());
+			for (auto textures : m_TextureTypes) {
+				if (textures.first == item) {
+					if (textures.second.type == Type::TEXTURE_2D)
+						Process2DTexture(item->text());
+					else
+						Process3DTexture(item->text(), textures.second);
+					break;
+				}
+
+			}
 		}
 		else if (item->data(Qt::UserRole) == 1) {
 			ProcessModel(item->text());
@@ -408,6 +426,11 @@ void Exporter::Process2DTexture(const QString& path) {
 	delete[] result;
 	delete database;
 }
+
+void Exporter::Process3DTexture(const QString& path, const Texture& texture) {
+	
+}
+
 
 void Exporter::ProcessModel(const QString& path) {
 	Assimp::Importer importer;

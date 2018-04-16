@@ -81,6 +81,7 @@ public:
 
 	void ProcessModel(const QString& path);
 	void Process2DTexture(const QString& path);
+	void Process3DTexture(const QString& path, const Texture& texture);
 
 	void dropEvent(QDropEvent* e) override;
 	void dragEnterEvent(QDragEnterEvent* e) override;
