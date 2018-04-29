@@ -428,7 +428,123 @@ void Exporter::Process2DTexture(const QString& path) {
 }
 
 void Exporter::Process3DTexture(const QString& path, const Texture& texture) {
+	m_ResourceBar->setValue(0);
+	m_ProgressAction->setText("Setting up for loading...");
+
+	std::string stdPath = path.toStdString();
+
+	FREE_IMAGE_FORMAT fif = FreeImage_GetFileType(stdPath.c_str());
+	if (fif == FIF_UNKNOWN)
+		fif = FreeImage_GetFIFFromFilename(stdPath.c_str());
+
+	m_ProgressAction->setText("Reading Image...");
+	m_ResourceBar->setValue(14);
+
+	FIBITMAP* loadDib;
+	if (FreeImage_FIFSupportsReading(fif)) loadDib = FreeImage_Load(fif, stdPath.c_str());
+
+	FIBITMAP* dib;
+
+	unsigned int testBpp = FreeImage_GetBPP(loadDib);
+	if (testBpp == 24)
+		dib = FreeImage_ConvertTo32Bits(loadDib);
+	else
+		dib = loadDib;
+
+	m_ProgressAction->setText("Copying data from image...");
+	m_ResourceBar->setValue(28);
+
+	unsigned char* pixels = FreeImage_GetBits(dib);
+	unsigned int width = FreeImage_GetWidth(dib);
+	unsigned int height = FreeImage_GetHeight(dib);
+	unsigned int bpp = FreeImage_GetBPP(dib);
+
+	unsigned int size = width * height * bpp / 8;
+
+	unsigned char* result = new unsigned char[size];
+
+	memcpy(result, pixels, size);
+
+	FreeImage_Unload(dib);
 	
+	m_ProgressAction->setText("Splitting image into faces...");
+	m_ResourceBar->setValue(38);
+
+	int skyboxFaceWidth = width / 4;
+	int skyboxFaceHeight = height / 3;
+
+	unsigned int skyboxFaceSize = skyboxFaceWidth * skyboxFaceHeight * bpp / 8;
+
+	unsigned char* left    = new unsigned char[skyboxFaceSize];
+	unsigned char* right   = new unsigned char[skyboxFaceSize];
+	unsigned char* front   = new unsigned char[skyboxFaceSize];
+	unsigned char* back    = new unsigned char[skyboxFaceSize];
+	unsigned char* top     = new unsigned char[skyboxFaceSize];
+	unsigned char* bottom  = new unsigned char[skyboxFaceSize];
+
+	QPoint leftFace        = texture.skyboxLocations[(size_t)Face::LEFT   ].second;
+	QPoint rightFace       = texture.skyboxLocations[(size_t)Face::RIGHT  ].second;
+	QPoint frontFace       = texture.skyboxLocations[(size_t)Face::FRONT  ].second;
+	QPoint backFace        = texture.skyboxLocations[(size_t)Face::BACK   ].second;
+	QPoint topFace         = texture.skyboxLocations[(size_t)Face::TOP    ].second;
+	QPoint bottomFace      = texture.skyboxLocations[(size_t)Face::BOTTOM ].second;
+
+	for (int y = 0; y < skyboxFaceWidth; y++) {
+		memcpy(left    + y * skyboxFaceWidth, result + leftFace.x()    * skyboxFaceWidth + leftFace.y()    * skyboxFaceHeight, skyboxFaceWidth * bpp / 8);
+		memcpy(right   + y * skyboxFaceWidth, result + rightFace.x()   * skyboxFaceWidth + rightFace.y()   * skyboxFaceHeight, skyboxFaceWidth * bpp / 8);
+		memcpy(front   + y * skyboxFaceWidth, result + frontFace.x()   * skyboxFaceWidth + frontFace.y()   * skyboxFaceHeight, skyboxFaceWidth * bpp / 8);
+		memcpy(back    + y * skyboxFaceWidth, result + backFace.x()    * skyboxFaceWidth + backFace.y()    * skyboxFaceHeight, skyboxFaceWidth * bpp / 8);
+		memcpy(top     + y * skyboxFaceWidth, result + topFace.x()     * skyboxFaceWidth + topFace.y()     * skyboxFaceHeight, skyboxFaceWidth * bpp / 8);
+		memcpy(bottom  + y * skyboxFaceWidth, result + bottomFace.x()  * skyboxFaceWidth + bottomFace.y()  * skyboxFaceHeight, skyboxFaceWidth * bpp / 8);
+	}
+
+	m_ProgressAction->setText("Creating fields...");
+	m_ResourceBar->setValue(58);
+
+	Field* faceWidth      = new Field("width", (int)skyboxFaceWidth);
+	Field* faceHeight     = new Field("height", (int)skyboxFaceHeight);
+
+	m_ProgressAction->setText("Creating array and storing pixels...");
+	m_ResourceBar->setValue(65);
+
+	Array* leftArray    = new Array("left",    left,    skyboxFaceSize);
+	Array* rightArray   = new Array("right",   right,   skyboxFaceSize);
+	Array* frontArray   = new Array("front",   front,   skyboxFaceSize);
+	Array* backArray    = new Array("back",    back,    skyboxFaceSize);
+	Array* topArray     = new Array("top",     top,     skyboxFaceSize);
+	Array* bottomArray  = new Array("bottom",  bottom,  skyboxFaceSize);
+
+	m_ProgressAction->setText("Creating database, object and buffer");
+	m_ResourceBar->setValue(70);
+
+	Object* obj = new Object("texture3D");
+	obj->addField(faceWidth);
+	obj->addField(faceHeight);
+
+	obj->addArray(leftArray);
+	obj->addArray(rightArray);
+	obj->addArray(frontArray);
+	obj->addArray(backArray);
+	obj->addArray(topArray);
+	obj->addArray(bottomArray);
+
+	Database* database = new Database("texture");
+	database->addObject(obj);
+
+	Buffer buffer = Buffer(database->getSize());
+	database->write(buffer);
+
+	m_ProgressAction->setText("Writing to file...");
+	m_ResourceBar->setValue(86);
+
+	QString fileName = CreateFileName(path, ".htskybox");
+
+	buffer.writeFile(fileName.toStdString());
+
+	m_ProgressAction->setText("Done!");
+	m_ResourceBar->setValue(100);
+	delete[] result, left, top, back, bottom, right, front;
+	delete database;
 }
 
 
