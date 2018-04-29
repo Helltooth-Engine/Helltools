@@ -503,6 +503,7 @@ void Exporter::Process3DTexture(const QString& path, const Texture& texture) {
 
 	Field* faceWidth      = new Field("width", (int)skyboxFaceWidth);
 	Field* faceHeight     = new Field("height", (int)skyboxFaceHeight);
+	Field* faceBpp = new Field("bpp", (int)bpp);
 
 	m_ProgressAction->setText("Creating array and storing pixels...");
 	m_ResourceBar->setValue(65);
@@ -520,6 +521,7 @@ void Exporter::Process3DTexture(const QString& path, const Texture& texture) {
 	Object* obj = new Object("texture3D");
 	obj->addField(faceWidth);
 	obj->addField(faceHeight);
+	obj->addField(faceBpp);
 
 	obj->addArray(leftArray);
 	obj->addArray(rightArray);
