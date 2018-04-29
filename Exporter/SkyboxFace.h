@@ -4,12 +4,12 @@
 #include <QMouseEvent>
 
 enum class Face {
-	TOP,
-	BOTTOM,
 	LEFT,
 	RIGHT,
 	FRONT,
 	BACK
+	TOP,
+	BOTTOM,
 };
 
 class SkyboxFace : public QLabel {
