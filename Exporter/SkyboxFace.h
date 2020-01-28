@@ -8,8 +8,8 @@ enum class Face {
 	RIGHT,
 	FRONT,
 	BACK,
-	TOP,
-	BOTTOM
+	UP,
+	DOWN
 };
 
 class SkyboxFace : public QLabel {

@@ -37,10 +37,10 @@ Face SkyboxFace::GetFace() {
 		return Face::FRONT;
 	if (text == "B")
 		return Face::BACK;
-	if (text == "Bt")
-		return Face::BOTTOM;
-	if (text == "T")
-		return Face::TOP;
+	if (text == "D")
+		return Face::DOWN;
+	if (text == "U")
+		return Face::UP;
 }
 
 QPoint SkyboxFace::GetLayoutLocation() {
