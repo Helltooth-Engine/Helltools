@@ -4,11 +4,11 @@
 #include <QMouseEvent>
 
 enum class Face {
-	LEFT,
-	RIGHT,
-	FRONT,
-	BACK,
 	UP,
+	LEFT,
+	FRONT,
+	RIGHT,
+	BACK,
 	DOWN
 };
 

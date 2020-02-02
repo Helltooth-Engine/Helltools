@@ -34,18 +34,18 @@ Exporter::Exporter(QWidget *parent)
 	
 	SkyboxFace::s_SkyboxTexture = m_Skybox;
 
-	m_Faces.push_back(new SkyboxFace(ui.left));
-	m_Faces.push_back(new SkyboxFace(ui.right));
-	m_Faces.push_back(new SkyboxFace(ui.front));
-	m_Faces.push_back(new SkyboxFace(ui.back));
 	m_Faces.push_back(new SkyboxFace(ui.up));
+	m_Faces.push_back(new SkyboxFace(ui.left));
+	m_Faces.push_back(new SkyboxFace(ui.front));
+	m_Faces.push_back(new SkyboxFace(ui.right));
+	m_Faces.push_back(new SkyboxFace(ui.back));
 	m_Faces.push_back(new SkyboxFace(ui.down));
 
-	m_Faces[0]->setText("L");
-	m_Faces[1]->setText("R");
+	m_Faces[0]->setText("U");
+	m_Faces[1]->setText("L");
 	m_Faces[2]->setText("F");
-	m_Faces[3]->setText("B");
-	m_Faces[4]->setText("U");
+	m_Faces[3]->setText("R");
+	m_Faces[4]->setText("B");
 	m_Faces[5]->setText("D");
 	
 	QFont font = ui.left->font();
@@ -451,6 +451,8 @@ void Exporter::Process3DTexture(const QString& path, const Texture& texture) {
 	else
 		dib = loadDib;
 
+	FreeImage_FlipVertical(dib);
+
 	m_ProgressAction->setText("Copying data from image...");
 	m_ResourceBar->setValue(28);
 
@@ -479,23 +481,26 @@ void Exporter::Process3DTexture(const QString& path, const Texture& texture) {
 	unsigned char* right   = new unsigned char[skyboxFaceSize];
 	unsigned char* front   = new unsigned char[skyboxFaceSize];
 	unsigned char* back    = new unsigned char[skyboxFaceSize];
-	unsigned char* up     = new unsigned char[skyboxFaceSize];
+	unsigned char* up      = new unsigned char[skyboxFaceSize];
 	unsigned char* bottom  = new unsigned char[skyboxFaceSize];
 
+	QPoint upFace          = texture.skyboxLocations[(size_t)Face::UP     ].second;
 	QPoint leftFace        = texture.skyboxLocations[(size_t)Face::LEFT   ].second;
-	QPoint rightFace       = texture.skyboxLocations[(size_t)Face::RIGHT  ].second;
 	QPoint frontFace       = texture.skyboxLocations[(size_t)Face::FRONT  ].second;
+	QPoint rightFace       = texture.skyboxLocations[(size_t)Face::RIGHT  ].second;
 	QPoint backFace        = texture.skyboxLocations[(size_t)Face::BACK   ].second;
-	QPoint topFace         = texture.skyboxLocations[(size_t)Face::UP    ].second;
-	QPoint bottomFace      = texture.skyboxLocations[(size_t)Face::DOWN ].second;
+	QPoint bottomFace      = texture.skyboxLocations[(size_t)Face::DOWN   ].second;
 
-	for (int y = 0; y < skyboxFaceWidth; y++) {
-		memcpy(left    + y * skyboxFaceWidth, result + leftFace.x()    * skyboxFaceWidth + leftFace.y()    * skyboxFaceHeight, skyboxFaceWidth * bpp / 8);
-		memcpy(right   + y * skyboxFaceWidth, result + rightFace.x()   * skyboxFaceWidth + rightFace.y()   * skyboxFaceHeight, skyboxFaceWidth * bpp / 8);
-		memcpy(front   + y * skyboxFaceWidth, result + frontFace.x()   * skyboxFaceWidth + frontFace.y()   * skyboxFaceHeight, skyboxFaceWidth * bpp / 8);
-		memcpy(back    + y * skyboxFaceWidth, result + backFace.x()    * skyboxFaceWidth + backFace.y()    * skyboxFaceHeight, skyboxFaceWidth * bpp / 8);
-		memcpy(up     + y * skyboxFaceWidth, result + topFace.x()     * skyboxFaceWidth + topFace.y()     * skyboxFaceHeight, skyboxFaceWidth * bpp / 8);
-		memcpy(bottom  + y * skyboxFaceWidth, result + bottomFace.x()  * skyboxFaceWidth + bottomFace.y()  * skyboxFaceHeight, skyboxFaceWidth * bpp / 8);
+	int advanceWidth = skyboxFaceWidth * bpp / 8;
+	int advanceHeight = width * bpp / 8;
+
+	for (int y = 0; y < skyboxFaceHeight; y++) {
+		memcpy(up      + y * advanceWidth, result + upFace.x()      * advanceWidth + upFace.y()      * skyboxFaceHeight * advanceHeight + y * advanceHeight, advanceWidth);
+		memcpy(left    + y * advanceWidth, result + leftFace.x()    * advanceWidth + leftFace.y()    * skyboxFaceHeight * advanceHeight + y * advanceHeight, advanceWidth);
+		memcpy(back    + y * advanceWidth, result + backFace.x()    * advanceWidth + backFace.y()    * skyboxFaceHeight * advanceHeight + y * advanceHeight, advanceWidth);
+		memcpy(right   + y * advanceWidth, result + rightFace.x()   * advanceWidth + rightFace.y()   * skyboxFaceHeight * advanceHeight + y * advanceHeight, advanceWidth);
+		memcpy(front   + y * advanceWidth, result + frontFace.x()   * advanceWidth + frontFace.y()   * skyboxFaceHeight * advanceHeight + y * advanceHeight, advanceWidth);
+		memcpy(bottom  + y * advanceWidth, result + bottomFace.x()  * advanceWidth + bottomFace.y()  * skyboxFaceHeight * advanceHeight + y * advanceHeight, advanceWidth);
 	}
 
 	m_ProgressAction->setText("Creating fields...");
@@ -512,7 +517,7 @@ void Exporter::Process3DTexture(const QString& path, const Texture& texture) {
 	Array* rightArray   = new Array("right",   right,   skyboxFaceSize);
 	Array* frontArray   = new Array("front",   front,   skyboxFaceSize);
 	Array* backArray    = new Array("back",    back,    skyboxFaceSize);
-	Array* topArray     = new Array("top",     up,     skyboxFaceSize);
+	Array* topArray     = new Array("top",     up,      skyboxFaceSize);
 	Array* bottomArray  = new Array("bottom",  bottom,  skyboxFaceSize);
 
 	m_ProgressAction->setText("Creating database, object and buffer");
@@ -701,21 +706,13 @@ void Exporter::UpdateSkyboxTextures() {
 					m_Skybox->setVisible(true);
 					m_Skybox->setPixmap(*m_TextureTypes[i].second.map);
 					Texture& tex = m_TextureTypes[i].second;
-					/*
-					ui.left   ->setGeometry(QRect(m_Skybox->x() + 1 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
-					ui.right  ->setGeometry(QRect(m_Skybox->x() + 3 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
-					ui.front  ->setGeometry(QRect(m_Skybox->x() + 2 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
-					ui.back   ->setGeometry(QRect(m_Skybox->x() + 0 * m_FaceWidth, m_Skybox->y() + 1 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
-					ui.up    ->setGeometry(QRect(m_Skybox->x() + 1 * m_FaceWidth, m_Skybox->y() + 0 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
-					ui.bottom ->setGeometry(QRect(m_Skybox->x() + 1 * m_FaceWidth, m_Skybox->y() + 2 * m_FaceHeight, m_FaceWidth, m_FaceHeight));
 
-					*/
 					if (tex.skyboxLocations.size() == 0) {
-						tex.skyboxLocations.push_back({ Face::LEFT,    QPoint(1, 1) });
-						tex.skyboxLocations.push_back({ Face::RIGHT,   QPoint(3, 1) });
-						tex.skyboxLocations.push_back({ Face::FRONT,   QPoint(2, 1) });
-						tex.skyboxLocations.push_back({ Face::BACK,    QPoint(0, 1) });
 						tex.skyboxLocations.push_back({ Face::UP,     QPoint(1, 0) });
+						tex.skyboxLocations.push_back({ Face::LEFT,    QPoint(0, 1) });
+						tex.skyboxLocations.push_back({ Face::FRONT,   QPoint(1, 1) });
+						tex.skyboxLocations.push_back({ Face::RIGHT,   QPoint(2, 1) });
+						tex.skyboxLocations.push_back({ Face::BACK,    QPoint(3, 1) });
 						tex.skyboxLocations.push_back({ Face::DOWN,  QPoint(1, 2) });
 					}
 					for (size_t i = 0; i < m_Faces.size(); i++) {
