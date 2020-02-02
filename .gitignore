@@ -2,4 +2,4 @@
 bin/*
 Exporter/GeneratedFiles/*
 settings.txt
-
+*.png
